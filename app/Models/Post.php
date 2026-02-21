@@ -10,6 +10,9 @@ class Post extends Model
 {
     use HasFactory;
 
+    /**
+     * @var array<int, string>
+     */
     protected $fillable = [
         'thread_id',
         'body',

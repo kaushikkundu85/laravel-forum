@@ -2,21 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePostRequest;
 use App\Models\Thread;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
-    public function store(Request $request, Thread $thread): RedirectResponse
+    public function store(StorePostRequest $request, Thread $thread): RedirectResponse
     {
-        $validated = $request->validate([
-            'body' => ['required', 'string'],
-            'author_name' => ['required', 'string', 'max:120'],
-        ]);
+        $thread->posts()->create($request->validated());
 
-        $thread->posts()->create($validated);
-
-        return redirect()->route('threads.show', $thread)->with('status', 'Reply added.');
+        return redirect()
+            ->route('threads.show', $thread)
+            ->with('status', 'Reply added successfully.');
     }
 }

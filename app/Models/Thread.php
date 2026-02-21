@@ -10,6 +10,9 @@ class Thread extends Model
 {
     use HasFactory;
 
+    /**
+     * @var array<int, string>
+     */
     protected $fillable = [
         'title',
         'body',

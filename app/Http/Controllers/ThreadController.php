@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreThreadRequest;
 use App\Models\Thread;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ThreadController extends Controller
 {
     public function index(): View
     {
-        $threads = Thread::latest()->get();
+        $threads = Thread::query()
+            ->withCount('posts')
+            ->latest()
+            ->paginate(10);
 
         return view('threads.index', compact('threads'));
     }
@@ -21,23 +24,18 @@ class ThreadController extends Controller
         return view('threads.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreThreadRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'body' => ['required', 'string'],
-            'author_name' => ['required', 'string', 'max:120'],
-        ]);
+        $thread = Thread::create($request->validated());
 
-        $thread = Thread::create($validated);
-
-        return redirect()->route('threads.show', $thread)->with('status', 'Thread created.');
+        return redirect()->route('threads.show', $thread)
+            ->with('status', 'Thread created successfully.');
     }
 
     public function show(Thread $thread): View
     {
-        $thread->load('posts');
+        $posts = $thread->posts()->latest()->paginate(10);
 
-        return view('threads.show', compact('thread'));
+        return view('threads.show', compact('thread', 'posts'));
     }
 }
